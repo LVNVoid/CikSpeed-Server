@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
 const symptomRoutes = require("./routes/symptomRoutes");
+const mechanicRoutes = require("./routes/mechanicRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/symptoms", symptomRoutes);
+app.use("/api/mechanics", mechanicRoutes);
 
 // Sync database
 sequelize.sync().then(() => {

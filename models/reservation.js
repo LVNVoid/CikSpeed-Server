@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "reservationId",
         otherKey: "symptomId",
       });
+
+      // Relasi many-to-one dengan Mechanic
+      Reservation.belongsTo(models.Mechanic, {
+        foreignKey: "mechanicId",
+      });
     }
   }
   Reservation.init(
@@ -27,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       userId: DataTypes.INTEGER,
       vehicleId: DataTypes.INTEGER,
+      mechanicId: DataTypes.INTEGER,
     },
     {
       sequelize,

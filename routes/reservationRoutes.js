@@ -1,11 +1,12 @@
 const express = require("express");
 const {
   createReservation,
-  verifyReservation,
   getCustomerReservation,
+  updateReservation,
   checkAvailableSlots,
   getAllReservations,
   getHistoryReservations,
+  getAllHistoryReservations,
 } = require("../controllers/reservationController");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
@@ -16,14 +17,22 @@ router.post("/", authenticate, createReservation);
 
 // Verifikasi reservasi (frontdesk)
 router.put(
-  "/:id/verify",
+  "/:id",
   authenticate,
   authorize(["frontdesk", "admin"]),
-  verifyReservation
+  updateReservation
 );
 
 // Semua Riwayat reservasi (customer)
-router.get("/history", authenticate, getHistoryReservations);
+router.get("/history/user", authenticate, getHistoryReservations);
+
+// Semua riwayat reservasi (admin / frontdesk)
+router.get(
+  "/history",
+  authenticate,
+  authorize(["admin", "frontdesk"]),
+  getAllHistoryReservations
+);
 
 // GET All Reservation (Admin / Frontdesk)
 router.get(
