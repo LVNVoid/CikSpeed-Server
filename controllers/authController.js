@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables from .env file
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
@@ -43,12 +44,19 @@ const login = async (req, res) => {
     }
 
     // Generate JWT
-    const token = jwt.sign({ id: user.id, role: user.role }, "secret_key", {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
+    );
 
     // Simpan token dalam cookie
-    res.cookie("token", token, { httpOnly: true, maxAge: 3600000 }); // 1 jam
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: parseInt(process.env.COOKIE_MAX_AGE),
+    }); // 1 jam
     res.json({ message: "Login berhasil", user });
   } catch (error) {
     res.status(400).json({ error: "Login gagal" });
@@ -72,7 +80,7 @@ const getCurrentUser = async (req, res) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, "secret_key");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     // Get user data
     const user = await User.findOne({
@@ -103,7 +111,7 @@ const updateProfile = async (req, res) => {
         .status(401)
         .json({ error: "Tidak ada token, autentikasi ditolak" });
     }
-    const decoded = jwt.verify(token, "secret_key");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     // Pastikan pengguna hanya bisa mengedit profilenya sendiri
     if (decoded.id !== req.params.id) {

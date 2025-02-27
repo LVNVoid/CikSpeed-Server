@@ -286,16 +286,12 @@ const getCustomerReservation = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
-    if (!latestReservation) {
-      return res.status(404).json({
-        success: false,
-        message: "Tidak ada data reservasi yang ditemukan untuk pengguna ini.",
-      });
-    }
-
     res.status(200).json({
       success: true,
-      data: latestReservation,
+      data: latestReservation || null,
+      message: latestReservation
+        ? "Reservasi ditemukan."
+        : "Tidak ada data reservasi untuk pengguna ini.",
     });
   } catch (error) {
     res.status(400).json({

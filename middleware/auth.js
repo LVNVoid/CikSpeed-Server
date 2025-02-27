@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const authenticate = (req, res, next) => {
   const token = req.cookies.token;
@@ -9,7 +10,7 @@ const authenticate = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "secret_key");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.user = { id: decoded.id, role: decoded.role };
     next();
   } catch (error) {
