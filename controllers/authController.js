@@ -56,8 +56,12 @@ const login = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: parseInt(process.env.COOKIE_MAX_AGE),
-    }); // 1 jam
-    res.json({ message: "Login berhasil", user });
+    });
+
+    // Exclude password from response
+    const { password: _, ...userWithoutPassword } = user.toJSON();
+
+    res.json({ message: "Login berhasil", user: userWithoutPassword });
   } catch (error) {
     res.status(400).json({ error: "Login gagal" });
   }
