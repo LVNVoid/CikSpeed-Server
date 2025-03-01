@@ -105,6 +105,17 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ["password"] }, // Exclude password from response
+    });
+    res.json({ users });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mendapatkan data pengguna" });
+  }
+};
+
 const updateProfile = async (req, res) => {
   const { name, phone, address, oldPassword, newPassword } = req.body;
   try {
@@ -152,4 +163,11 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, logout, getCurrentUser, updateProfile };
+module.exports = {
+  register,
+  login,
+  logout,
+  getCurrentUser,
+  updateProfile,
+  getAllUsers,
+};

@@ -5,6 +5,7 @@ const {
   logout,
   getCurrentUser,
   updateProfile,
+  getAllUsers,
 } = require("../controllers/authController");
 const router = express.Router();
 
@@ -20,6 +21,10 @@ router.post("/logout", logout);
 // GET Current User
 router.get("/me", getCurrentUser);
 
+// GET All User
+router.get("/users", getAllUsers);
+
+// Update Profile
 router.put("/profile", updateProfile);
 
 module.exports = router;
