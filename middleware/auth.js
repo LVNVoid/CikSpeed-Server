@@ -14,7 +14,18 @@ const authenticate = (req, res, next) => {
     req.user = { id: decoded.id, role: decoded.role };
     next();
   } catch (error) {
-    res.status(401).json({ error: "Token tidak valid" });
+    switch (error.name) {
+      case "TokenExpiredError":
+        return res
+          .status(401)
+          .json({ error: "Token sudah kedaluwarsa. Silakan login kembali." });
+      case "JsonWebTokenError":
+        return res.status(401).json({ error: "Token tidak valid." });
+      default:
+        return res
+          .status(500)
+          .json({ error: "Terjadi kesalahan dalam autentikasi." });
+    }
   }
 };
 

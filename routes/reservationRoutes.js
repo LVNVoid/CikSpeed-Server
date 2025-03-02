@@ -7,6 +7,7 @@ const {
   getAllReservations,
   getHistoryReservations,
   getAllHistoryReservations,
+  getReservationById,
 } = require("../controllers/reservationController");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
@@ -50,5 +51,13 @@ router.get("/available-slots", (req, res) => {
   const { date, serviceType } = req.query;
   checkAvailableSlots(req, res);
 });
+
+// Get reservation by ID (admin / frontdesk)
+router.get(
+  "/:id",
+  authenticate,
+  authorize(["admin", "frontdesk"]),
+  getReservationById
+);
 
 module.exports = router;

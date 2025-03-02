@@ -172,6 +172,27 @@ const getAllHistoryReservations = async (req, res) => {
   }
 };
 
+// Get Reservation By Id
+const getReservationById = async (req, res) => {
+  try {
+    const reservation = await Reservation.findByPk(req.params.id, {
+      include: [
+        { model: Vehicle, paranoid: false },
+        { model: Symptom, through: { attributes: [] } },
+        { model: Mechanic, attributes: ["id", "name", "phoneNumber"] },
+      ],
+    });
+
+    if (!reservation) {
+      return res.status(404).json({ error: "Reservasi tidak ditemukan" });
+    }
+
+    res.json(reservation);
+  } catch (error) {
+    res.status(400).json({ error: "Gagal mengambil data reservasi" });
+  }
+};
+
 // Mendapatkan riwayat reservasi customer
 const getHistoryReservations = async (req, res) => {
   try {
@@ -306,6 +327,9 @@ const getCustomerReservation = async (req, res) => {
 const getAllReservations = async (req, res) => {
   try {
     const reservations = await Reservation.findAll({
+      where: {
+        status: ["pending", "confirmed", "cancelled"], // Filter berdasarkan status
+      },
       include: [
         { model: Vehicle, paranoid: false },
         { model: User },
@@ -317,7 +341,16 @@ const getAllReservations = async (req, res) => {
         ["time", "ASC"],
       ],
     });
-    res.json(reservations);
+
+    // Jika tidak ada data yang ditemukan
+    if (!reservations.length) {
+      return res.status(404).json({
+        error:
+          "Tidak ada reservasi dengan status pending, confirmed, atau cancelled ditemukan",
+      });
+    }
+
+    res.json(reservations); // Kirim data reservasi sebagai response
   } catch (error) {
     res.status(400).json({
       error: "Gagal mengambil data semua reservasi",
@@ -376,4 +409,5 @@ module.exports = {
   updateReservation,
   checkAvailableSlots,
   getAllHistoryReservations,
+  getReservationById,
 };

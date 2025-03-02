@@ -25,7 +25,7 @@ app.use("/api/mechanics", mechanicRoutes);
 
 // Sync database
 sequelize.sync().then(() => {
-  console.log("Database synced");
+  console.log("Connected to database 🚀");
 });
 
 // Start server
