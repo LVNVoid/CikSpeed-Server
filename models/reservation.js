@@ -1,4 +1,3 @@
-// models/reservation.js
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
@@ -27,8 +26,14 @@ module.exports = (sequelize, DataTypes) => {
     {
       date: DataTypes.DATEONLY,
       time: DataTypes.TIME,
-      serviceType: DataTypes.STRING,
-      status: DataTypes.STRING,
+      serviceType: {
+        type: DataTypes.ENUM("regular", "major"),
+        allowNull: false,
+      },
+      status: {
+        type: DataTypes.ENUM("confirmed", "pending", "success", "failed"),
+        allowNull: false,
+      },
       description: DataTypes.TEXT,
       userId: DataTypes.INTEGER,
       vehicleId: DataTypes.INTEGER,
