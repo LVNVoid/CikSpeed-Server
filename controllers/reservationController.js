@@ -133,8 +133,38 @@ const createReservation = async (req, res) => {
       include: [
         { model: Symptom, through: { attributes: [] } },
         { model: Vehicle },
+        { model: User },
       ],
     });
+
+    // Mengirim notifikasi ke admin menggunakan Socket.IO
+    const io = req.app.get("io");
+    const adminSocketIds = req.app.get("adminSocketIds");
+
+    const notificationData = {
+      id: Date.now(),
+      type: "new-reservation",
+      reservationId: reservation.id,
+      customerName: user.name || user.username,
+      vehicleName:
+        reservationWithSymptoms.Vehicle.name ||
+        reservationWithSymptoms.Vehicle.model,
+      date: reservation.date,
+      time: reservation.time,
+      serviceType: reservation.serviceType,
+      timestamp: new Date(),
+      read: false,
+    };
+
+    // Kirim notifikasi ke semua admin yang terhubung
+    if (adminSocketIds.length > 0) {
+      adminSocketIds.forEach((socketId) => {
+        io.to(socketId).emit("new-reservation", notificationData);
+      });
+    } else {
+      // Broadcast ke semua client jika tidak ada admin yang terhubung
+      io.emit("new-reservation", notificationData);
+    }
 
     res.status(201).json(reservationWithSymptoms);
   } catch (error) {
