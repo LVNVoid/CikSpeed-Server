@@ -302,6 +302,7 @@ const getCustomerReservation = async (req, res) => {
       include: [
         { model: Vehicle, paranoid: false },
         { model: User },
+        { model: Mechanic },
         { model: Symptom, through: { attributes: [] } },
       ],
       order: [["createdAt", "DESC"]],
@@ -345,8 +346,7 @@ const getAllReservations = async (req, res) => {
     // Jika tidak ada data yang ditemukan
     if (!reservations.length) {
       return res.status(404).json({
-        error:
-          "Tidak ada reservasi dengan status pending, confirmed, atau cancelled ditemukan",
+        error: "Tidak ada reservasi yang ditemukan",
       });
     }
 
@@ -364,13 +364,11 @@ const checkAvailableSlots = async (req, res) => {
   const { date, serviceType } = req.query;
 
   try {
-    // Ambil semua reservasi pada tanggal yang dipilih
     const reservations = await Reservation.findAll({
       where: { date },
       attributes: ["time", "serviceType"],
     });
 
-    // Hitung jumlah reservasi per slot waktu dengan reduce
     const slotCounts = reservations.reduce((acc, { time, serviceType }) => {
       acc[time] = (acc[time] || 0) + 1;
       if (serviceType === SERVICE_TYPE.MAJOR) {
@@ -379,11 +377,9 @@ const checkAvailableSlots = async (req, res) => {
       return acc;
     }, {});
 
-    // Filter slot waktu yang tersedia
     const availableSlots = OPERATING_HOURS.filter((slot, index) => {
       if (serviceType === SERVICE_TYPE.MAJOR) {
         const nextSlot = OPERATING_HOURS[index + 1];
-        // Hanya tampilkan slot yang memiliki slot berikutnya dan keduanya tersedia
         return (
           nextSlot &&
           (slotCounts[slot] || 0) < 2 &&
