@@ -4,7 +4,11 @@ const { Symptom } = require("../models");
 const getSymptoms = async (req, res) => {
   try {
     const symptoms = await Symptom.findAll();
-    res.json(symptoms);
+    const total = await Symptom.count();
+    res.json({
+      total: total,
+      data: symptoms,
+    });
   } catch (error) {
     res.status(400).json({ error: "Gagal mengambil data gejala" });
   }
