@@ -427,6 +427,16 @@ const checkAvailableSlots = async (req, res) => {
   }
 };
 
+const deleteReservation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Reservation.destroy({ where: { id } });
+    res.status(200).json({ message: "Reservasi berhasil dihapus" });
+  } catch (error) {
+    res.status(400).json({ error: "Gagal menghapus reservasi" });
+  }
+};
+
 module.exports = {
   createReservation,
   getCustomerReservation,
@@ -436,4 +446,5 @@ module.exports = {
   checkAvailableSlots,
   getAllHistoryReservations,
   getReservationById,
+  deleteReservation,
 };
