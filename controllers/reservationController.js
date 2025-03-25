@@ -107,7 +107,10 @@ const createReservation = async (req, res) => {
       );
 
       if (!isSlotAvailable) {
-        return res.status(400).json({ error: "Slot waktu tidak tersedia" });
+        return res.status(400).json({
+          error:
+            "Slot waktu yang dipilih sudah penuh, silahkan pilih slot waktu lain",
+        });
       }
     }
 
