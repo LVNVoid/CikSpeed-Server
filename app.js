@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -33,7 +35,7 @@ app.use("/api/symptoms", symptomRoutes);
 app.use("/api/mechanics", mechanicRoutes);
 
 // Sync database
-sequelize.sync().then(() => {
+sequelize.sync({ force: false }).then(() => {
   console.log("Connected to database 🚀");
 });
 
