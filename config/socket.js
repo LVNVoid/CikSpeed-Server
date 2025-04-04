@@ -1,11 +1,14 @@
+require("dotenv").config();
 const { Server } = require("socket.io");
 
 let adminSocketIds = [];
 
+const baseUrl = process.env.BASE_URL_PROD;
+
 function initializeSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: baseUrl,
       methods: ["GET", "POST"],
       credentials: true,
     },

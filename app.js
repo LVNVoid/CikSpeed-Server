@@ -15,8 +15,10 @@ const initializeSocket = require("./config/socket");
 
 const app = express();
 
+const baseUrl = process.env.BASE_URL_PROD;
+
 // Middleware
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: baseUrl }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -33,6 +35,10 @@ app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/symptoms", symptomRoutes);
 app.use("/api/mechanics", mechanicRoutes);
+
+app.get("/", (req, res) => {
+  res.json({ message: "Your server is running 🚀" });
+});
 
 // Sync database
 sequelize.sync({ force: false }).then(() => {
