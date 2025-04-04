@@ -39,5 +39,3 @@ Thumbs.db
 
 # Sequelize specific
 /sequelize-meta.json
-/migrations
-/seeds
