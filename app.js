@@ -36,7 +36,7 @@ app.use("/api/reservations", reservationRoutes);
 app.use("/api/symptoms", symptomRoutes);
 app.use("/api/mechanics", mechanicRoutes);
 
-app.get("/", (req, res) => {
+app.get("/test", (req, res) => {
   res.json({ message: "Your server is running 🚀" });
 });
 
