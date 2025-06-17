@@ -1,21 +1,17 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define(
-    "User",
-    {
-      name: DataTypes.STRING,
-      phone: DataTypes.STRING,
-      address: DataTypes.STRING,
-      password: DataTypes.STRING,
-      role: {
-        type: DataTypes.ENUM("customer", "frontdesk", "admin"),
-        allowNull: false,
-        defaultValue: "customer",
-      },
+  const User = sequelize.define("User", {
+    name: DataTypes.STRING,
+    phone: DataTypes.STRING,
+    address: DataTypes.STRING,
+    password: DataTypes.STRING,
+    role: {
+      type: DataTypes.ENUM("customer", "frontdesk", "admin"),
+      allowNull: false,
+      defaultValue: "customer",
     },
-    {}
-  );
+  });
 
   User.associate = function (models) {
     // Relasi one-to-many dengan Vehicle
