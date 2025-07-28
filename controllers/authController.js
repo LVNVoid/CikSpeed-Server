@@ -37,8 +37,9 @@ const login = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       maxAge: parseInt(process.env.COOKIE_MAX_AGE) || 3600000,
+      sameSite: "Lax",
     });
 
     const { password: _, ...userWithoutPassword } = user.toJSON();
