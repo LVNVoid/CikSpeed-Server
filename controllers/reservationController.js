@@ -4,6 +4,7 @@ const { Reservation, Symptom, Vehicle, User, Mechanic } = require("../models");
 const STATUS = {
   PENDING: "pending",
   CONFIRMED: "confirmed",
+  IN_PROGRESS: "in_progress",
   SUCCESS: "success",
   FAILED: "failed",
   CANCELED: "canceled",
@@ -257,10 +258,17 @@ const getHistoryReservations = async (req, res) => {
   }
 };
 
-// Update reservasi
+// Update seluruh data reservasi
 const updateReservation = async (req, res) => {
   const { id } = req.params;
-  const { date, time, status, serviceType, mechanicId } = req.body;
+  const {
+    date,
+    time,
+    status,
+    serviceDetail, // Catatan servis
+    serviceType,
+    mechanicId,
+  } = req.body;
 
   try {
     const reservation = await Reservation.findByPk(id);
@@ -268,7 +276,6 @@ const updateReservation = async (req, res) => {
       return res.status(404).json({ error: "Reservasi tidak ditemukan" });
     }
 
-    // Validasi input data
     if (date && !isValidDate(date)) {
       return res.status(400).json({
         error: "Tanggal harus dimulai dari satu hari setelah hari ini",
@@ -283,18 +290,6 @@ const updateReservation = async (req, res) => {
       return res.status(400).json({ error: "Jenis servis tidak valid" });
     }
 
-    if (time && date) {
-      const isSlotAvailable = await checkSlotAvailability(
-        date,
-        time,
-        serviceType || reservation.serviceType
-      );
-
-      if (!isSlotAvailable) {
-        return res.status(400).json({ error: "Slot waktu tidak tersedia" });
-      }
-    }
-
     if (mechanicId) {
       const mechanic = await Mechanic.findByPk(mechanicId);
       if (!mechanic) {
@@ -302,13 +297,13 @@ const updateReservation = async (req, res) => {
       }
     }
 
-    // Persiapkan data untuk update
     const updatedData = {};
-    if (date) updatedData.date = date;
-    if (time) updatedData.time = time;
-    if (status) updatedData.status = status;
-    if (mechanicId) updatedData.mechanicId = mechanicId;
-    if (serviceType) updatedData.serviceType = serviceType;
+    if (date !== undefined) updatedData.date = date;
+    if (time !== undefined) updatedData.time = time;
+    if (status !== undefined) updatedData.status = status;
+    if (serviceDetail !== undefined) updatedData.serviceDetail = serviceDetail;
+    if (mechanicId !== undefined) updatedData.mechanicId = mechanicId;
+    if (serviceType !== undefined) updatedData.serviceType = serviceType;
 
     await Reservation.update(updatedData, { where: { id } });
 
@@ -318,9 +313,35 @@ const updateReservation = async (req, res) => {
 
     res.status(200).json(updatedReservation);
   } catch (error) {
+    res.status(400).json({
+      error: "Gagal mengupdate reservasi",
+      details: error.message,
+    });
+  }
+};
+
+// Update status reservasi
+const updateReservationStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const reservation = await Reservation.findByPk(id);
+    if (!reservation) {
+      return res.status(404).json({ error: "Reservasi tidak ditemukan" });
+    }
+
+    if (!Object.values(STATUS).includes(status)) {
+      return res.status(400).json({ error: "Status tidak valid" });
+    }
+
+    await Reservation.update({ status }, { where: { id } });
+
+    res.status(200).json({ message: "Status reservasi berhasil diperbarui" });
+  } catch (error) {
     res
       .status(400)
-      .json({ error: "Gagal mengupdate reservasi", details: error.message });
+      .json({ error: "Gagal memperbarui status reservasi", details: error });
   }
 };
 
@@ -330,7 +351,12 @@ const getCustomerReservation = async (req, res) => {
     const latestReservation = await Reservation.findOne({
       where: {
         userId: req.user.id,
-        status: [STATUS.PENDING, STATUS.CONFIRMED, STATUS.CANCELED],
+        status: [
+          STATUS.PENDING,
+          STATUS.CONFIRMED,
+          STATUS.CANCELED,
+          STATUS.IN_PROGRESS,
+        ],
       },
       include: [
         { model: Vehicle, paranoid: false },
@@ -362,7 +388,7 @@ const getAllReservations = async (req, res) => {
   try {
     const reservations = await Reservation.findAll({
       where: {
-        status: ["pending", "confirmed", "cancelled"], // Filter berdasarkan status
+        status: ["pending", "confirmed", "cancelled", "in_progress"],
       },
       include: [
         { model: Vehicle, paranoid: false },
@@ -450,4 +476,5 @@ module.exports = {
   getAllHistoryReservations,
   getReservationById,
   deleteReservation,
+  updateReservationStatus,
 };

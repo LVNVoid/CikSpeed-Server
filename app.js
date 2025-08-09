@@ -10,6 +10,7 @@ const vehicleRoutes = require("./routes/vehicleRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
 const symptomRoutes = require("./routes/symptomRoutes");
 const mechanicRoutes = require("./routes/mechanicRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 const http = require("http");
 const initializeSocket = require("./config/socket");
 
@@ -35,6 +36,7 @@ app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/symptoms", symptomRoutes);
 app.use("/api/mechanics", mechanicRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 app.get("/test", (req, res) => {
   res.json({ message: "Your server is running 🚀" });

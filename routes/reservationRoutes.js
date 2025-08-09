@@ -9,6 +9,7 @@ const {
   getAllHistoryReservations,
   getReservationById,
   deleteReservation,
+  updateReservationStatus,
 } = require("../controllers/reservationController");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
@@ -23,6 +24,14 @@ router.put(
   authenticate,
   authorize(["frontdesk", "admin"]),
   updateReservation
+);
+
+//  Update status reservasi
+router.put(
+  "/status/:id",
+  authenticate,
+  authorize(["frontdesk", "admin"]),
+  updateReservationStatus
 );
 
 router.delete("/:id", authenticate, deleteReservation);
