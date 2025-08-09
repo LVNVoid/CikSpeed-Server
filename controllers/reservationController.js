@@ -1,4 +1,13 @@
-const { Reservation, Symptom, Vehicle, User, Mechanic } = require("../models");
+const {
+  Reservation,
+  Symptom,
+  Vehicle,
+  User,
+  Mechanic,
+  Review,
+} = require("../models");
+
+const { DateTime } = require("luxon");
 
 // Konstanta untuk enum
 const STATUS = {
@@ -205,6 +214,47 @@ const getAllHistoryReservations = async (req, res) => {
     });
   }
 };
+
+//  Mendapatkan data reservasi hari ini
+const getTodayReservations = async (req, res) => {
+  try {
+    const tz = req.query.tz || process.env.APP_TZ || "Asia/Jakarta";
+
+    const today = DateTime.now().setZone(tz).toISODate();
+
+    const reservations = await Reservation.findAll({
+      where: {
+        date: today,
+      },
+      include: [
+        { model: User, attributes: ["id", "name"] },
+        { model: Review, attributes: ["id", "rating", "comment"] },
+        { model: Vehicle, attributes: ["id", "brand", "type"] },
+        { model: Mechanic, attributes: ["id", "name"] },
+        {
+          model: Symptom,
+          through: { attributes: [] },
+          attributes: ["id", "name"],
+        },
+      ],
+      order: [["time", "ASC"]], // urutkan berdasarkan jam
+    });
+
+    res.status(200).json({
+      success: true,
+      date: today,
+      data: reservations,
+    });
+  } catch (error) {
+    console.error("Error fetching today's reservations:", error);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan saat mengambil data reservasi hari ini",
+    });
+  }
+};
+
+module.exports = { getTodayReservations };
 
 // Get Reservation By Id
 const getReservationById = async (req, res) => {
@@ -477,4 +527,5 @@ module.exports = {
   getReservationById,
   deleteReservation,
   updateReservationStatus,
+  getTodayReservations,
 };

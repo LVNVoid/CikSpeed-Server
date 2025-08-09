@@ -10,6 +10,7 @@ const {
   getReservationById,
   deleteReservation,
   updateReservationStatus,
+  getTodayReservations,
 } = require("../controllers/reservationController");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
@@ -25,6 +26,9 @@ router.put(
   authorize(["frontdesk", "admin"]),
   updateReservation
 );
+
+// Mendapatkan data reservasi hari ini
+router.get("/today", getTodayReservations);
 
 //  Update status reservasi
 router.put(
